@@ -59,6 +59,7 @@ dependencies {
         exclude group: 'com.android.support'
     }
     compile 'org.dmfs:essentials:1.9'
+    compile 'org.dmfs:iterators:1.9'
 
     testCompile 'junit:junit:4.12'
 }
