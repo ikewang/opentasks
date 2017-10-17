@@ -52,10 +52,12 @@ import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
 
+import org.dmfs.android.contentpal.RowSet;
 import org.dmfs.android.retentionmagic.SupportFragment;
 import org.dmfs.android.retentionmagic.annotations.Parameter;
 import org.dmfs.android.retentionmagic.annotations.Retain;
 import org.dmfs.tasks.contract.TaskContract.Tasks;
+import org.dmfs.tasks.data.SubtaskTitlesSource;
 import org.dmfs.tasks.model.ContentSet;
 import org.dmfs.tasks.model.Model;
 import org.dmfs.tasks.model.OnContentChangeListener;
@@ -65,11 +67,19 @@ import org.dmfs.tasks.notification.TaskNotificationHandler;
 import org.dmfs.tasks.share.ShareIntentFactory;
 import org.dmfs.tasks.utils.ContentValueMapper;
 import org.dmfs.tasks.utils.OnModelLoadedListener;
+import org.dmfs.tasks.widget.SubtasksView;
 import org.dmfs.tasks.widget.TaskView;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import gk.android.investigator.Investigator;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -130,6 +140,8 @@ public class ViewTaskFragment extends SupportFragment
      * The actual detail view. We store this direct reference to be able to clear it when the fragment gets detached.
      */
     private TaskView mDetailView;
+
+    private Disposable mDisposable;
 
     private int mListColor;
     private int mOldStatus = -1;
@@ -208,14 +220,6 @@ public class ViewTaskFragment extends SupportFragment
     }
 
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the fragment (e.g. upon screen orientation changes).
-     */
-    public ViewTaskFragment()
-    {
-    }
-
-
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -265,6 +269,8 @@ public class ViewTaskFragment extends SupportFragment
             // remove values, to ensure all listeners get released
             mDetailView.setValues(null);
         }
+
+        mDisposable.dispose();
 
     }
 
@@ -319,6 +325,20 @@ public class ViewTaskFragment extends SupportFragment
             mTaskUri = null;
             loadUri(uri);
         }
+
+        mDisposable = Single.wrap(
+                new SubtaskTitlesSource(mAppContext, mTaskUri))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<RowSet<Tasks>>()
+                {
+                    @Override
+                    public void accept(RowSet<Tasks> subtaskTitles) throws Exception
+                    {
+                        Investigator.log(this, "subtasktitles", subtaskTitles);
+                        new SubtasksView(mContent).update(subtaskTitles);
+                    }
+                });
 
         return mRootView;
     }
@@ -400,8 +420,8 @@ public class ViewTaskFragment extends SupportFragment
 
         if ((oldUri == null) != (uri == null))
         {
-			/*
-			 * getActivity().invalidateOptionsMenu() doesn't work in Android 2.x so use the compat lib
+            /*
+             * getActivity().invalidateOptionsMenu() doesn't work in Android 2.x so use the compat lib
 			 */
             ActivityCompat.invalidateOptionsMenu(getActivity());
         }
@@ -491,8 +511,8 @@ public class ViewTaskFragment extends SupportFragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
     {
-		/*
-		 * Don't show any options if we don't have a task to show.
+        /*
+         * Don't show any options if we don't have a task to show.
 		 */
         if (mTaskUri != null)
         {
