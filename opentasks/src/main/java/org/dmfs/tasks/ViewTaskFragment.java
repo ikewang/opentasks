@@ -58,7 +58,7 @@ import org.dmfs.android.retentionmagic.annotations.Parameter;
 import org.dmfs.android.retentionmagic.annotations.Retain;
 import org.dmfs.tasks.contract.TaskContract.Tasks;
 import org.dmfs.tasks.data.Offloading;
-import org.dmfs.tasks.data.SubtaskTitlesSource;
+import org.dmfs.tasks.data.SubtasksSource;
 import org.dmfs.tasks.model.ContentSet;
 import org.dmfs.tasks.model.Model;
 import org.dmfs.tasks.model.OnContentChangeListener;
@@ -324,7 +324,7 @@ public class ViewTaskFragment extends SupportFragment
             loadUri(uri);
         }
 
-        mDisposable = new Offloading<>(new SubtaskTitlesSource(mAppContext, mTaskUri))
+        mDisposable = new Offloading<>(new SubtasksSource(mAppContext, mTaskUri))
                 .subscribe(new Consumer<RowSet<Tasks>>()
                 {
                     @Override

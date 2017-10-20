@@ -38,13 +38,13 @@ import static org.dmfs.provider.tasks.AuthorityUtil.taskAuthority;
 /**
  * @author Gabor Keszthelyi
  */
-public final class SubtaskTitlesSource implements SingleSource<RowSet<Tasks>>
+public final class SubtasksSource implements SingleSource<RowSet<Tasks>>
 {
     private final Context mAppContext;
     private final Uri mTaskUri;
 
 
-    public SubtaskTitlesSource(Context appContext, Uri taskUri)
+    public SubtasksSource(Context appContext, Uri taskUri)
     {
         mAppContext = appContext;
         mTaskUri = taskUri;
