@@ -26,7 +26,6 @@ import org.dmfs.jems.single.Single;
 /**
  * @author Gabor Keszthelyi
  */
-// TODO Long or Integer?
 public final class Id implements Single<Long>
 {
     private final RowDataSnapshot<?> mRowDataSnapshot;

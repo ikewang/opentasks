@@ -38,20 +38,22 @@ import org.dmfs.tasks.contract.TaskContract;
  */
 public final class Subtasks extends DelegatingRowSet<TaskContract.Tasks>
 {
+    // TODO Use projection for the required columns
 
-    public Subtasks(String authority, ContentProviderClient client, @NonNull RowSnapshot<TaskContract.Tasks> parentTask)
+
+    public Subtasks(@NonNull String authority, @NonNull ContentProviderClient client, @NonNull RowSnapshot<TaskContract.Tasks> parentTask)
     {
         super(new QueryRowSet<>(new TasksView(authority, client), new ReferringTo<>(TaskContract.Tasks.PARENT_ID, parentTask)));
     }
 
 
-    public Subtasks(String authority, ContentProviderClient client, @NonNull Long parentTaskId)
+    public Subtasks(@NonNull String authority, @NonNull ContentProviderClient client, @NonNull Long parentTaskId)
     {
         super(new QueryRowSet<>(new TasksView(authority, client), new EqArg(TaskContract.Tasks.PARENT_ID, parentTaskId)));
     }
 
 
-    public Subtasks(String authority, ContentProviderClient client, Uri parentTask)
+    public Subtasks(@NonNull String authority, @NonNull ContentProviderClient client, @NonNull Uri parentTask)
     {
         this(authority, client, ContentUris.parseId(parentTask));
     }
