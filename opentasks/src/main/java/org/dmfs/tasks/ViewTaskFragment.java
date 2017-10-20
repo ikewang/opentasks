@@ -57,6 +57,7 @@ import org.dmfs.android.retentionmagic.SupportFragment;
 import org.dmfs.android.retentionmagic.annotations.Parameter;
 import org.dmfs.android.retentionmagic.annotations.Retain;
 import org.dmfs.tasks.contract.TaskContract.Tasks;
+import org.dmfs.tasks.data.Offloading;
 import org.dmfs.tasks.data.SubtaskTitlesSource;
 import org.dmfs.tasks.model.ContentSet;
 import org.dmfs.tasks.model.Model;
@@ -75,11 +76,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import gk.android.investigator.Investigator;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -326,10 +324,7 @@ public class ViewTaskFragment extends SupportFragment
             loadUri(uri);
         }
 
-        mDisposable = Single.wrap(
-                new SubtaskTitlesSource(mAppContext, mTaskUri))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+        mDisposable = new Offloading<>(new SubtaskTitlesSource(mAppContext, mTaskUri))
                 .subscribe(new Consumer<RowSet<Tasks>>()
                 {
                     @Override
